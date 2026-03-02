@@ -1,18 +1,21 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'package:gallery/views/home.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:gallery/providers/authProvider.dart';
+import 'login.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class SignupScreen extends StatefulWidget {
+  const SignupScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<SignupScreen> createState() => _SignupScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _SignupScreenState extends State<SignupScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -33,14 +36,13 @@ class _LoginScreenState extends State<LoginScreen> {
       backgroundColor: Colors.black,
       body: Stack(
         children: [
-          ///  TOP TEXT
           Positioned(
             top: 120,
             left: 0,
             right: 0,
-            child:  Center(
+            child: Center(
               child: Text(
-                "Welcome Back!",
+                "Create Account",
                 style: GoogleFonts.instrumentSans(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
@@ -50,7 +52,6 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
 
-          ///  BOTTOM CURVED CARD
           Align(
             alignment: Alignment.bottomCenter,
             child: Container(
@@ -80,13 +81,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-
                       const SizedBox(height: 10),
 
-                      /// LOGIN TITLE
                       Center(
                         child: Text(
-                          "Login",
+                          "Sign Up",
                           style: GoogleFonts.sansation(
                             fontSize: 26,
                             fontWeight: FontWeight.bold,
@@ -96,8 +95,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                       const SizedBox(height: 40),
 
-                      /// EMAIL
-                       Text(
+                      Text(
                         "Email",
                         style: GoogleFonts.sansation(
                           fontSize: 16,
@@ -105,14 +103,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       const SizedBox(height: 8),
+
                       TextFormField(
                         controller: emailController,
                         decoration: InputDecoration(
                           hintText: "Enter email",
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 15,
-                            vertical: 12,
-                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
@@ -130,8 +125,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                       const SizedBox(height: 25),
 
-                      ///  PASSWORD
-                       Text(
+                      Text(
                         "Password",
                         style: GoogleFonts.sansation(
                           fontSize: 16,
@@ -139,15 +133,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       const SizedBox(height: 8),
+
                       TextFormField(
                         controller: passwordController,
                         obscureText: true,
                         decoration: InputDecoration(
                           hintText: "Enter password",
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 15,
-                            vertical: 12,
-                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
@@ -165,7 +156,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
                       const SizedBox(height: 40),
 
-                      ///  LOGIN BUTTON
                       SizedBox(
                         width: double.infinity,
                         height: 50,
@@ -174,39 +164,48 @@ class _LoginScreenState extends State<LoginScreen> {
                               ? null
                               : () async {
                                   if (_formKey.currentState!.validate()) {
-                                    await provider.login(
+                                    await provider.signup(
                                       emailController.text.trim(),
                                       passwordController.text.trim(),
                                     );
+
+                                    if (provider.errorMessage == null) {
+                                      Get.offAll(() => const HomeScreen());
+                                    }
                                   }
                                 },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.deepPurple,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
                           child: provider.isLoading
                               ? const CircularProgressIndicator(
                                   color: Colors.white,
                                 )
-                              :  Text(
-                                  "Login",
+                              : Text(
+                                  "Sign Up",
                                   style: GoogleFonts.instrumentSans(
                                     fontSize: 18,
                                     fontWeight: FontWeight.w600,
-                                    color: Colors.white,
                                   ),
                                 ),
                         ),
                       ),
 
-                      if (provider.error != null)
+                      const SizedBox(height: 20),
+
+                      TextButton(
+                        onPressed: () {
+                          Get.offAll(() => const LoginScreen());
+                        },
+                        child: const Text(
+                          "Already have an account? Login",
+                          style: TextStyle(color: Colors.black, fontSize: 22),
+                        ),
+                      ),
+
+                      if (provider.errorMessage != null)
                         Padding(
                           padding: const EdgeInsets.only(top: 15),
                           child: Center(
                             child: Text(
-                              provider.error!,
+                              provider.errorMessage!,
                               style: const TextStyle(color: Colors.red),
                             ),
                           ),

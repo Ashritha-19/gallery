@@ -4,9 +4,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class FavoriteProvider extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final String userId = FirebaseAuth.instance.currentUser!.uid;
 
-  /// Check if image already favorite
+ String get userId => FirebaseAuth.instance.currentUser!.uid;
+
   Future<bool> isFavorite(String imageId) async {
     final doc = await _firestore
         .collection('favorites')
@@ -18,17 +18,15 @@ class FavoriteProvider extends ChangeNotifier {
     return doc.exists;
   }
 
-  /// Add favorite
   Future<void> addFavorite(Map<String, dynamic> data) async {
     await _firestore
         .collection('favorites')
         .doc(userId)
         .collection('images')
-        .doc(data['id']) // prevents duplicates
+        .doc(data['id'])
         .set(data);
   }
 
-  /// Remove favorite
   Future<void> removeFavorite(String id) async {
     await _firestore
         .collection('favorites')
@@ -38,7 +36,6 @@ class FavoriteProvider extends ChangeNotifier {
         .delete();
   }
 
-  /// Real-time favorites
   Stream<QuerySnapshot> getFavorites() {
     return _firestore
         .collection('favorites')

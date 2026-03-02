@@ -7,17 +7,18 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
-
 class ImageDetailScreen extends StatefulWidget {
   final String id;
 
   const ImageDetailScreen({super.key, required this.id});
 
   @override
-  State<ImageDetailScreen> createState() => _ImageDetailScreenState();
+  State<ImageDetailScreen> createState() =>
+      _ImageDetailScreenState();
 }
 
-class _ImageDetailScreenState extends State<ImageDetailScreen> {
+class _ImageDetailScreenState
+    extends State<ImageDetailScreen> {
   Map<String, dynamic>? data;
   bool isLoading = true;
   bool isFavorite = false;
@@ -32,11 +33,13 @@ class _ImageDetailScreenState extends State<ImageDetailScreen> {
   Future<void> fetchDetail() async {
     try {
       final response = await http.get(
-        Uri.parse("https://picsum.photos/id/${widget.id}/info"),
+        Uri.parse(
+            "https://picsum.photos/id/${widget.id}/info"),
       );
 
       if (response.statusCode == 200) {
-        final decoded = json.decode(response.body);
+        final decoded =
+            json.decode(response.body);
 
         setState(() {
           data = decoded;
@@ -44,8 +47,6 @@ class _ImageDetailScreenState extends State<ImageDetailScreen> {
         });
 
         await checkFavoriteStatus();
-      } else {
-        throw Exception("Failed to load image details");
       }
     } catch (e) {
       setState(() {
@@ -55,8 +56,10 @@ class _ImageDetailScreenState extends State<ImageDetailScreen> {
   }
 
   Future<void> checkFavoriteStatus() async {
-    final provider = context.read<FavoriteProvider>();
-    final result = await provider.isFavorite(widget.id);
+    final provider =
+        context.read<FavoriteProvider>();
+    final result =
+        await provider.isFavorite(widget.id);
 
     if (mounted) {
       setState(() {
@@ -68,7 +71,8 @@ class _ImageDetailScreenState extends State<ImageDetailScreen> {
   Future<void> toggleFavorite() async {
     if (data == null) return;
 
-    final provider = context.read<FavoriteProvider>();
+    final provider =
+        context.read<FavoriteProvider>();
 
     setState(() {
       isProcessingFavorite = true;
@@ -77,36 +81,19 @@ class _ImageDetailScreenState extends State<ImageDetailScreen> {
     try {
       if (isFavorite) {
         await provider.removeFavorite(widget.id);
-
-        setState(() {
-          isFavorite = false;
-        });
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Removed from Favorites")),
-        );
+        setState(() => isFavorite = false);
       } else {
         await provider.addFavorite({
           'id': data!['id'],
           'author': data!['author'],
           'width': data!['width'],
           'height': data!['height'],
-          'download_url': data!['download_url'],
+          'download_url':
+              data!['download_url'],
           'url': data!['url'],
         });
-
-        setState(() {
-          isFavorite = true;
-        });
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Added to Favorites")),
-        );
+        setState(() => isFavorite = true);
       }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Something went wrong")),
-      );
     } finally {
       if (mounted) {
         setState(() {
@@ -118,7 +105,8 @@ class _ImageDetailScreenState extends State<ImageDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final colorScheme =
+        Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: AppBar(
@@ -132,11 +120,13 @@ class _ImageDetailScreenState extends State<ImageDetailScreen> {
         actions: [
           isProcessingFavorite
               ? const Padding(
-                  padding: EdgeInsets.all(12),
+                  padding:
+                      EdgeInsets.all(12),
                   child: SizedBox(
                     width: 20,
                     height: 20,
-                    child: CircularProgressIndicator(
+                    child:
+                        CircularProgressIndicator(
                       strokeWidth: 2,
                       color: Colors.white,
                     ),
@@ -146,110 +136,101 @@ class _ImageDetailScreenState extends State<ImageDetailScreen> {
                   icon: Icon(
                     isFavorite
                         ? Icons.favorite
-                        : Icons.favorite_border,
-                    color:
-                        isFavorite ? Colors.red : colorScheme.onPrimary,
+                        : Icons
+                            .favorite_border,
+                    color: isFavorite
+                        ? Colors.red
+                        : colorScheme
+                            .onPrimary,
                   ),
-                  onPressed: toggleFavorite,
+                  onPressed:
+                      toggleFavorite,
                 ),
         ],
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : data == null
-              ? const Center(child: Text("Failed to load data"))
-              : SingleChildScrollView(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start,
-                    children: [
-                      /// IMAGE
-                      ClipRRect(
-                        borderRadius:
-                            BorderRadius.circular(16),
-                        child: Image.network(
-                          data!['download_url'],
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      ///  DETAILS CARD
-                      Card(
-                        elevation: 4,
-                        shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(16),
-                        ),
-                        color: colorScheme.surface,
-                        child: Padding(
-                          padding:
-                              const EdgeInsets.all(20),
-                          child: Column(
-                            children: [
-                              _detailRow(
-                                  "Author",
-                                  data!['author'],
-                                  context),
-                              Divider(
-                                  color: colorScheme
-                                      .outlineVariant),
-                              _detailRow(
-                                  "Width",
-                                  data!['width']
-                                      .toString(),
-                                  context),
-                              Divider(
-                                  color: colorScheme
-                                      .outlineVariant),
-                              _detailRow(
-                                  "Height",
-                                  data!['height']
-                                      .toString(),
-                                  context),
-                              Divider(
-                                  color: colorScheme
-                                      .outlineVariant),
-                              _detailRow("URL",
-                                  data!['url'], context),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
+          ? const Center(
+              child:
+                  CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding:
+                  const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment:
+                    CrossAxisAlignment.start,
+                children: [
+                  ClipRRect(
+                    borderRadius:
+                        BorderRadius.circular(
+                            16),
+                    child: Image.network(
+                      data!['download_url'],
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                ),
+                  const SizedBox(
+                      height: 24),
+                  Card(
+                    elevation: 4,
+                    shape:
+                        RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(
+                              16),
+                    ),
+                    child: Padding(
+                      padding:
+                          const EdgeInsets
+                              .all(20),
+                      child: Column(
+                        children: [
+                          _detailRow(
+                              "Author",
+                              data!['author']),
+                          const Divider(),
+                          _detailRow(
+                              "Width",
+                              data!['width']
+                                  .toString()),
+                          const Divider(),
+                          _detailRow(
+                              "Height",
+                              data!['height']
+                                  .toString()),
+                          const Divider(),
+                          _detailRow(
+                              "URL",
+                              data!['url']),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
     );
   }
 
   Widget _detailRow(
-      String title, String value, BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
+      String title, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
+      padding:
+          const EdgeInsets.symmetric(
+              vertical: 10),
       child: Row(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
         children: [
           Text(
             "$title : ",
             style: GoogleFonts.poppins(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: colorScheme.primary,
+              fontWeight:
+                  FontWeight.w600,
             ),
           ),
           Expanded(
             child: Text(
               value,
-              style: GoogleFonts.sansation(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: colorScheme.onSurface,
-              ),
+              style: GoogleFonts
+                  .sansation(),
             ),
           ),
         ],

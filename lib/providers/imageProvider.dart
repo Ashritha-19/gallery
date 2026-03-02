@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:gallery/models/imageModel.dart';
-import 'package:gallery/services/imageService.dart';
-
+import '../models/imageModel.dart';
+import '../services/imageService.dart';
 
 class ImageListProvider extends ChangeNotifier {
   final ImageService _service = ImageService();
@@ -26,8 +25,6 @@ class ImageListProvider extends ChangeNotifier {
         images.addAll(newImages);
         _page++;
       }
-    } catch (e) {
-      debugPrint(e.toString());
     } finally {
       isLoading = false;
       notifyListeners();

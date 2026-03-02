@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:gallery/models/imageModel.dart';
 import 'package:gallery/views/imagedetail.dart';
 
-
 class ImageTile extends StatelessWidget {
   final ImageModel image;
 
@@ -15,12 +14,14 @@ class ImageTile extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => ImageDetailScreen(id: image.id),
+            builder: (_) =>
+                ImageDetailScreen(id: image.id),
           ),
         );
       },
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius:
+            BorderRadius.circular(8),
         child: Image.network(
           image.downloadUrl,
           fit: BoxFit.cover,
